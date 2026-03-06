@@ -35,6 +35,9 @@ export const deleteOrder = (orderId) => API.delete(`/orders/${orderId}`);
 
 export const sendLocation = (orderId, locationData) => API.post(`/orders/${orderId}/tracking`, locationData);
 
+export const getDriverProfile = () => API.get('/drivers/profile');
+export const updateDriverProfile = (data) => API.patch('/drivers/profile', data);
+
 export const getMyNotifications = () => API.get('/notifications');
 export const markAllAsRead = () => API.patch('/notifications/read-all');
 export const markOneAsRead = (notificationId) => API.patch(`/notifications/${notificationId}/read`);

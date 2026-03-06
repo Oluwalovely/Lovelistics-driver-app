@@ -12,9 +12,10 @@ import AuthGuard from './auth/AuthGuard';
 import ForgotPassword from './pages/Forgotpassword';
 import VerifyOTP from './pages/Verifyotp';
 import ResetPassword from './pages/Resetpassword';
+import Profile from './pages/Profile';
 
 
-// ─── Public Route ─────────────────────────────────────────────
+// Public Route
 const PublicRoute = ({ children }) => {
     const { user, loading } = useAuth();
     if (loading) return null;
@@ -37,6 +38,7 @@ const AppRoutes = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/orders/:orderId" element={<OrderDetails />} />
             <Route path="/notifications" element={<Notifications />} />
+            <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Catch all */}

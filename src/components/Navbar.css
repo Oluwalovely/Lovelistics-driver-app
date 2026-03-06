@@ -217,3 +217,60 @@
     .app-nav-right { display: none; }
     .app-hamburger { display: flex; }
 }
+
+
+/* Avatar Dropdown */
+.app-avatar-wrap { position: relative; }
+
+.app-avatar-btn {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.app-avatar-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+
+.app-avatar-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e8610a;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.78rem; color: #fff; flex-shrink: 0;
+}
+
+.app-avatar-name { color: rgba(255,255,255,0.85); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+
+.app-dropdown {
+    position: absolute; top: calc(100% + 8px); right: 0;
+    background: #fff;
+    border: 1px solid #e8edf7;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(13,31,79,0.14);
+    min-width: 220px;
+    overflow: hidden;
+    z-index: 1000;
+    animation: dropIn 0.15s ease;
+}
+
+@keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+.app-dropdown-header { padding: 0.85rem 1rem; background: #f8fafc; }
+.app-dropdown-name { margin: 0; font-weight: 700; color: #0d1f4f; font-size: 0.88rem; }
+.app-dropdown-email { margin: 0.15rem 0 0; font-size: 0.72rem; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.app-dropdown-divider { height: 1px; background: #e8edf7; }
+
+.app-dropdown-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem; font-weight: 500; color: #334155;
+    text-decoration: none; width: 100%;
+    background: transparent; border: none; cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    text-align: left;
+}
+.app-dropdown-item:hover { background: #f1f5f9; color: #0d1f4f; }
+.app-dropdown-logout { color: #dc2626; }
+.app-dropdown-logout:hover { background: #fef2f2; color: #dc2626; }
