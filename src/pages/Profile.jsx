@@ -68,7 +68,7 @@ const Toast = ({ type, message }) => (
 );
 
 const Profile = () => {
-    const { user, setUser } = useAuth();
+    const { user, updateUser } = useAuth();
     const avatarInputRef = useRef(null);
 
     const [profile, setProfile] = useState({
@@ -133,7 +133,7 @@ const Profile = () => {
             const fd = new FormData();
             fd.append('avatar', avatarFile);
             const res = await uploadDriverAvatar(fd);
-            if (setUser) setUser(u => ({ ...u, avatar: res.data.data?.avatar }));
+            if (res.data.data?.avatar) updateUser({ avatar: res.data.data.avatar });
             setAvatarFile(null);
             setAvatarMsg({ type: 'success', text: 'Profile photo updated!' });
         } catch {
