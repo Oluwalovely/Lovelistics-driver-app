@@ -13,6 +13,7 @@ import ForgotPassword from './pages/Forgotpassword';
 import VerifyOTP from './pages/Verifyotp';
 import ResetPassword from './pages/Resetpassword';
 import Profile from './pages/Profile';
+import Revenue from './pages/Revenue';
 
 
 // Public Route
@@ -39,6 +40,7 @@ const AppRoutes = () => (
             <Route path="/orders/:orderId" element={<OrderDetails />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/revenue" element={<Revenue />} />
         </Route>
 
         {/* Catch all */}

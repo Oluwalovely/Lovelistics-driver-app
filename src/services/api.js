@@ -37,6 +37,8 @@ export const sendLocation = (orderId, locationData) => API.post(`/orders/${order
 
 export const getDriverProfile = () => API.get('/drivers/profile');
 export const updateDriverProfile = (data) => API.patch('/drivers/profile', data);
+export const uploadDriverAvatar = (formData) => API.patch('/drivers/profile/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const changeDriverPassword = (data) => API.patch('/drivers/change-password', data);
 
 export const getMyNotifications = () => API.get('/notifications');
 export const markAllAsRead = () => API.patch('/notifications/read-all');
