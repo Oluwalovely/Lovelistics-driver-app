@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getMyNotifications, markAllAsRead, markOneAsRead } from '../services/api';
 import Navbar from '../components/Navbar';
+import SidebarLayout from '../components/SidebarLayout';
 
 const notifIcon = {
     'ORDER_PLACED':    <Package size={18} />,
@@ -69,7 +70,7 @@ const Notifications = () => {
 
     return (
         <>
-            <Navbar />
+            <SidebarLayout />
             <div className="container py-4">
                 <div className="row justify-content-center">
                     <div className="col-md-7">
