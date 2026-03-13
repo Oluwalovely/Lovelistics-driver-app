@@ -11,7 +11,6 @@ import {
   XCircle
 } from 'lucide-react';
 import { getMyNotifications, markAllAsRead, markOneAsRead } from '../services/api';
-import Navbar from '../components/Navbar';
 import SidebarLayout from '../components/SidebarLayout';
 
 const notifIcon = {
