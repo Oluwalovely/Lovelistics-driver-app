@@ -5,139 +5,125 @@ import { getMyOrders } from '../services/api';
 import Navbar from '../components/Navbar';
 import {
     Package, Clock, Zap, CheckCircle,
-    MapPin, Flag, User, Phone, ArrowRight
+    MapPin, Flag, User, Phone, ArrowRight,
+    TrendingUp, AlertCircle
 } from 'lucide-react';
 
-const THEME = {
-    primary: '#0d1f4f',
-    secondary: '#e8610a',
-    accent: '#f5a623',
-    success: '#198754',
+const C = {
+    navy: '#0d1f4f', navyL: '#162660', orange: '#e8610a',
+    amber: '#d97706', green: '#16a34a', bg: '#f1f4f9',
+    white: '#ffffff', border: '#e8edf7', muted: '#64748b', faint: '#94a3b8',
+};
+const shadow = { boxShadow: '0 1px 3px rgba(13,31,79,0.06), 0 4px 20px rgba(13,31,79,0.05)' };
+
+const statusCfg = {
+    'pending':    { bg: '#fef9ec', text: '#92400e', border: '#fde68a', dot: C.amber,  label: 'Pending'    },
+    'assigned':   { bg: '#eff6ff', text: '#1d4ed8', border: '#bfdbfe', dot: '#2563eb', label: 'Assigned'   },
+    'picked-up':  { bg: '#f0fdf4', text: '#166534', border: '#bbf7d0', dot: C.green,  label: 'Picked Up'  },
+    'in-transit': { bg: '#faf5ff', text: '#6d28d9', border: '#ddd6fe', dot: '#7c3aed', label: 'In Transit' },
+    'delivered':  { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0', dot: C.green,  label: 'Delivered'  },
+    'confirmed':  { bg: '#f0fdf4', text: '#15803d', border: '#bbf7d0', dot: C.green,  label: 'Confirmed'  },
+    'cancelled':  { bg: '#fef2f2', text: '#991b1b', border: '#fecaca', dot: '#dc2626', label: 'Cancelled'  },
 };
 
-const statusStyles = {
-    'pending':    { bg: '#fff8e1', text: '#856404', border: '#ffeeba' },
-    'assigned':   { bg: '#e7f1ff', text: '#0d1f4f', border: '#b6d4fe' },
-    'picked-up':  { bg: '#e7f1ff', text: '#0d1f4f', border: '#b6d4fe' },
-    'in-transit': { bg: '#fff0e0', text: '#e8610a', border: '#ffcca0' },
-    'delivered':  { bg: '#d1e7dd', text: '#0f5132', border: '#badbcc' },
-    'confirmed':  { bg: '#d1e7dd', text: '#0f5132', border: '#badbcc' },
-    'cancelled':  { bg: '#f8d7da', text: '#842029', border: '#f5c2c7' },
+const Badge = ({ status }) => {
+    const s = statusCfg[status] || { bg: '#f8fafc', text: C.muted, border: C.border, dot: C.faint, label: status };
+    const pulse = ['assigned', 'in-transit', 'picked-up'].includes(status);
+    return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: s.bg, color: s.text, border: `1px solid ${s.border}`, padding: '3px 10px', borderRadius: 999, fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, flexShrink: 0, animation: pulse ? 'pulse 2s infinite' : 'none' }} />
+            {s.label}
+        </span>
+    );
 };
 
-const CardStyle = {
-    background: '#fff',
-    borderRadius: '16px',
-    border: 'none',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-    overflow: 'hidden',
-};
-
-// ─── Stat Card ────────────────────────────────────────────────
-const StatCard = ({ title, count, icon, color }) => (
-    <div className="card h-100" style={{ ...CardStyle, borderLeft: `5px solid ${color}` }}>
-        <div className="card-body d-flex align-items-center justify-content-between p-4">
-            <div>
-                <p className="text-muted mb-1 text-uppercase fw-bold" style={{ fontSize: '0.75rem', letterSpacing: '1px' }}>
-                    {title}
-                </p>
-                <h2 className="fw-bold mb-0" style={{ color: THEME.primary }}>{count}</h2>
-            </div>
-            <div style={{
-                width: 50, height: 50,
-                background: `${color}20`,
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: color,
-            }}>
-                {icon}
-            </div>
+const KPICard = ({ title, value, icon, color, sub }) => (
+    <div className="kpi-card" style={{ background: C.white, borderRadius: 14, ...shadow, border: `1px solid ${C.border}`, cursor: 'default', transition: 'transform 0.18s, box-shadow 0.18s' }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(13,31,79,0.12)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = shadow.boxShadow; }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color, flexShrink: 0 }}>{icon}</div>
         </div>
+        <p style={{ margin: 0, fontSize: '0.63rem', fontWeight: 600, color: C.faint, textTransform: 'uppercase', letterSpacing: '0.6px', lineHeight: 1.3 }}>{title}</p>
+        <h2 style={{ margin: '0.2rem 0 0', fontSize: '1.45rem', fontWeight: 800, color: C.navy, lineHeight: 1 }}>{value}</h2>
+        {sub && <p style={{ margin: '0.2rem 0 0', fontSize: '0.63rem', color: C.faint }}>{sub}</p>}
     </div>
 );
 
-// ─── Order Card ───────────────────────────────────────────────
 const OrderCard = ({ order }) => {
-    const status = statusStyles[order.status] || { bg: '#f8f9fa', text: '#333', border: '#dee2e6' };
+    const s = statusCfg[order.status] || { bg: '#f8f9fa', text: '#333', border: '#dee2e6', label: order.status };
     const isActive = ['assigned', 'picked-up', 'in-transit'].includes(order.status);
 
     return (
-        <div className="card h-100" style={{ ...CardStyle, borderTop: `3px solid ${isActive ? THEME.secondary : THEME.primary}` }}>
+        <div style={{ background: C.white, borderRadius: 16, ...shadow, border: `1px solid ${C.border}`, borderTop: `3px solid ${isActive ? C.orange : C.navy}`, overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'transform 0.18s, box-shadow 0.18s' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(13,31,79,0.1)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = shadow.boxShadow; }}>
+
             {/* Header */}
-            <div className="card-header border-0 bg-white pt-3 pb-0 px-3 d-flex justify-content-between align-items-center">
-                <span className="badge rounded-pill fw-normal"
-                    style={{ background: '#f0f2f5', color: THEME.primary, padding: '6px 12px', fontSize: '0.8rem' }}>
+            <div style={{ padding: '0.85rem 1rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ background: '#f0f2f5', color: C.navy, padding: '5px 12px', borderRadius: 999, fontSize: '0.78rem', fontWeight: 700 }}>
                     #{order.trackingNumber}
                 </span>
-                <span className="badge rounded-pill"
-                    style={{ background: status.bg, color: status.text, border: `1px solid ${status.border}`, padding: '6px 12px', fontSize: '0.75rem' }}>
-                    {order.status.toUpperCase()}
-                </span>
+                <Badge status={order.status} />
             </div>
 
-            <div className="card-body px-3 pt-3 pb-3">
-                {/* Route Visualization */}
-                <div className="d-flex align-items-start gap-3 mb-3">
-                    <div className="d-flex flex-column align-items-center" style={{ marginTop: 4 }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: THEME.secondary }} />
-                        <div style={{ width: 2, height: 30, background: '#dee2e6' }} />
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: THEME.success }} />
+            {/* Route */}
+            <div style={{ padding: '0.85rem 1rem', display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 4, flexShrink: 0 }}>
+                    <div style={{ width: 9, height: 9, borderRadius: '50%', background: C.orange }} />
+                    <div style={{ width: 2, height: 28, background: C.border }} />
+                    <div style={{ width: 9, height: 9, borderRadius: '50%', background: C.green }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ marginBottom: '0.6rem' }}>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: C.faint, display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <MapPin size={10} /> Pickup
+                        </p>
+                        <p style={{ margin: 0, fontWeight: 600, color: C.navy, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {order.pickupAddress?.street}, {order.pickupAddress?.city}
+                        </p>
                     </div>
-                    <div className="w-100">
-                        <div className="mb-3">
-                            <p className="mb-0 text-muted d-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
-                                <MapPin size={11} /> Pickup
-                            </p>
-                            <p className="fw-semibold mb-0 text-truncate" style={{ color: THEME.primary, maxWidth: 200, fontSize: '0.875rem' }}>
-                                {order.pickupAddress?.street}, {order.pickupAddress?.city}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="mb-0 text-muted d-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
-                                <Flag size={11} /> Delivery
-                            </p>
-                            <p className="fw-semibold mb-0 text-truncate" style={{ color: THEME.primary, maxWidth: 200, fontSize: '0.875rem' }}>
-                                {order.deliveryAddress?.street}, {order.deliveryAddress?.city}
-                            </p>
-                        </div>
+                    <div>
+                        <p style={{ margin: 0, fontSize: '0.7rem', color: C.faint, display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <Flag size={10} /> Delivery
+                        </p>
+                        <p style={{ margin: 0, fontWeight: 600, color: C.navy, fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {order.deliveryAddress?.street}, {order.deliveryAddress?.city}
+                        </p>
                     </div>
                 </div>
-
-                {/* Customer Info */}
-                {order.customer && (
-                    <div className="p-2 rounded" style={{ background: '#f8f9fa' }}>
-                        <div className="d-flex align-items-center gap-2 mb-1">
-                            <div style={{ width: 28, height: 28, background: '#e9ecef', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: THEME.primary }}>
-                                <User size={14} />
-                            </div>
-                            <p className="mb-0 fw-semibold" style={{ fontSize: '0.85rem' }}>{order.customer.fullName}</p>
-                        </div>
-                        <div className="d-flex align-items-center gap-1" style={{ paddingLeft: 36 }}>
-                            <Phone size={11} color="#6b7a99" />
-                            <small className="text-muted" style={{ fontSize: '0.75rem' }}>{order.customer.phone}</small>
-                        </div>
-                    </div>
-                )}
             </div>
 
+            {/* Customer */}
+            {order.customer && (
+                <div style={{ margin: '0 1rem 0.85rem', padding: '0.6rem 0.75rem', background: '#f8fafc', borderRadius: 10, border: `1px solid ${C.border}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#e9ecef', display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.navy, flexShrink: 0 }}>
+                            <User size={13} />
+                        </div>
+                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.83rem', color: C.navy }}>{order.customer.fullName}</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, paddingLeft: 34 }}>
+                        <Phone size={10} color={C.faint} />
+                        <span style={{ fontSize: '0.73rem', color: C.muted }}>{order.customer.phone}</span>
+                    </div>
+                </div>
+            )}
+
             {/* Footer */}
-            <div className="card-footer bg-white border-0 px-3 pb-3 pt-0 d-flex justify-content-between align-items-center">
-                <p className="mb-0 fw-bold" style={{ color: THEME.secondary, fontSize: '1.1rem' }}>
+            <div style={{ marginTop: 'auto', padding: '0.75rem 1rem', borderTop: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafbfc' }}>
+                <p style={{ margin: 0, fontWeight: 800, color: C.orange, fontSize: '1.05rem' }}>
                     ₦{order.price?.toLocaleString()}
                 </p>
-                <Link to={`/orders/${order._id}`} className="btn btn-sm fw-semibold d-flex align-items-center gap-1"
-                    style={{ background: isActive ? THEME.secondary : THEME.primary, color: '#fff', borderRadius: 8, padding: '6px 16px' }}>
-                    {isActive ? 'Update' : 'Details'} <ArrowRight size={14} />
+                <Link to={`/orders/${order._id}`}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: isActive ? C.orange : C.navy, color: '#fff', borderRadius: 8, padding: '6px 14px', fontSize: '0.78rem', fontWeight: 700, textDecoration: 'none' }}>
+                    {isActive ? 'Update' : 'Details'} <ArrowRight size={13} />
                 </Link>
             </div>
         </div>
     );
 };
 
-// ─── Dashboard ────────────────────────────────────────────────
 const Dashboard = () => {
     const { user } = useAuth();
     const [orders, setOrders] = useState([]);
@@ -150,7 +136,7 @@ const Dashboard = () => {
             try {
                 const res = await getMyOrders(user._id);
                 setOrders(res.data.data);
-            } catch (err) {
+            } catch {
                 setError('Failed to load orders');
             } finally {
                 setLoading(false);
@@ -160,84 +146,142 @@ const Dashboard = () => {
     }, [user]);
 
     const stats = {
-        total: orders.length,
-        pending: orders.filter(o => o.status === 'assigned').length,
-        active: orders.filter(o => ['picked-up', 'in-transit'].includes(o.status)).length,
+        total:     orders.length,
+        pending:   orders.filter(o => o.status === 'assigned').length,
+        active:    orders.filter(o => ['picked-up', 'in-transit'].includes(o.status)).length,
         delivered: orders.filter(o => ['delivered', 'confirmed'].includes(o.status)).length,
     };
 
-    const filtered = filter === 'all' ? orders
-        : filter === 'active' ? orders.filter(o => ['assigned', 'picked-up', 'in-transit'].includes(o.status))
-        : orders.filter(o => ['delivered', 'confirmed'].includes(o.status));
+    const earnings = orders
+        .filter(o => ['delivered', 'confirmed'].includes(o.status))
+        .reduce((sum, o) => sum + (o.price || 0), 0);
+
+    const filtered =
+        filter === 'active'    ? orders.filter(o => ['assigned', 'picked-up', 'in-transit'].includes(o.status)) :
+        filter === 'delivered' ? orders.filter(o => ['delivered', 'confirmed'].includes(o.status)) :
+        orders;
+
+    const tabs = [
+        { key: 'all',       label: 'All Orders' },
+        { key: 'active',    label: 'Active' },
+        { key: 'delivered', label: 'Delivered' },
+    ];
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f4f6f9' }}>
-            <Navbar />
-            <div className="container py-5">
+        <>
+            <style>{`
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.4; }
+                }
+                .kpi-card {
+                    padding: 1rem;
+                }
+                @media (min-width: 576px) { .kpi-card { padding: 1.1rem; } }
+                @media (min-width: 992px) { .kpi-card { padding: 1.25rem; } }
 
-                {/* Header */}
-                <div className="mb-5">
-                    <h2 className="fw-bold mb-1" style={{ color: THEME.primary }}>My Deliveries</h2>
-                    <p className="text-muted mb-0">
-                        Welcome back, <span className="fw-semibold text-dark">{user?.fullName}</span>! Here are your assigned orders.
-                    </p>
-                </div>
+                .kpi-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.85rem;
+                }
+                @media (min-width: 768px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
 
-                {/* Stats */}
-                <div className="row g-4 mb-5">
-                    <div className="col-12 col-sm-6 col-lg-3">
-                        <StatCard title="Total Assigned" count={stats.total} color={THEME.primary} icon={<Package size={24} />} />
-                    </div>
-                    <div className="col-12 col-sm-6 col-lg-3">
-                        <StatCard title="Awaiting Pickup" count={stats.pending} color={THEME.accent} icon={<Clock size={24} />} />
-                    </div>
-                    <div className="col-12 col-sm-6 col-lg-3">
-                        <StatCard title="In Progress" count={stats.active} color={THEME.secondary} icon={<Zap size={24} />} />
-                    </div>
-                    <div className="col-12 col-sm-6 col-lg-3">
-                        <StatCard title="Delivered" count={stats.delivered} color={THEME.success} icon={<CheckCircle size={24} />} />
-                    </div>
-                </div>
+                .orders-grid {
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    gap: 1rem;
+                }
+                @media (min-width: 600px)  { .orders-grid { grid-template-columns: repeat(2, 1fr); } }
+                @media (min-width: 1024px) { .orders-grid { grid-template-columns: repeat(3, 1fr); } }
 
-                {/* Filter tabs */}
-                <div className="d-flex gap-2 mb-4 flex-wrap">
-                    {['all', 'active', 'delivered'].map(f => (
-                        <button key={f} onClick={() => setFilter(f)} className="btn btn-sm"
-                            style={{
-                                borderRadius: 8, fontWeight: 600, fontSize: '0.82rem',
-                                background: filter === f ? THEME.primary : '#fff',
-                                color: filter === f ? '#fff' : '#6b7a99',
-                                border: filter === f ? 'none' : '1px solid #dde2ef',
-                            }}>
-                            {f.charAt(0).toUpperCase() + f.slice(1)}
-                        </button>
-                    ))}
-                </div>
+                .dash-topbar {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    flex-wrap: wrap;
+                    gap: 0.75rem;
+                    margin-bottom: 1.75rem;
+                }
+                .filter-tabs {
+                    display: flex;
+                    gap: 0.5rem;
+                    flex-wrap: wrap;
+                    margin-bottom: 1.25rem;
+                }
+            `}</style>
 
-                {/* Orders */}
-                {loading ? (
-                    <div className="text-center py-5">
-                        <div className="spinner-border" style={{ color: THEME.primary }} />
+            <div style={{ minHeight: '100vh', background: C.bg }}>
+                <Navbar />
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '2rem 1rem 3rem' }}>
+
+                    {/* Topbar */}
+                    <div className="dash-topbar">
+                        <div>
+                            <h4 style={{ margin: 0, fontWeight: 800, color: C.navy, fontSize: '1.3rem' }}>My Deliveries</h4>
+                            <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: C.muted }}>
+                                Welcome back, <span style={{ fontWeight: 700, color: C.navy }}>{user?.fullName}</span>
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: `${C.green}15`, border: `1px solid ${C.green}30`, borderRadius: 10, padding: '0.45rem 0.9rem' }}>
+                            <TrendingUp size={15} color={C.green} />
+                            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: C.green }}>
+                                ₦{earnings.toLocaleString()} earned
+                            </span>
+                        </div>
                     </div>
-                ) : error ? (
-                    <div className="alert alert-danger">{error}</div>
-                ) : filtered.length === 0 ? (
-                    <div className="text-center py-5 card shadow-sm border-0" style={{ borderRadius: 16 }}>
-                        <Package size={48} color="#dde2ef" className="mx-auto mt-4" />
-                        <h5 className="fw-bold text-muted mt-3">No orders here</h5>
-                        <p className="text-muted mb-4">You have no assigned deliveries yet.</p>
+
+                    {/* KPI Cards */}
+                    <div className="kpi-grid" style={{ marginBottom: '1.75rem' }}>
+                        <KPICard title="Total Assigned" value={stats.total}     color={C.navy}   icon={<Package size={18} />}      sub="All time" />
+                        <KPICard title="Awaiting Pickup" value={stats.pending}  color={C.amber}  icon={<Clock size={18} />}        sub="Assigned orders" />
+                        <KPICard title="In Progress"     value={stats.active}   color={C.orange} icon={<Zap size={18} />}          sub="En route now" />
+                        <KPICard title="Delivered"       value={stats.delivered} color={C.green} icon={<CheckCircle size={18} />}  sub="Completed" />
                     </div>
-                ) : (
-                    <div className="row g-4">
-                        {filtered.map(order => (
-                            <div key={order._id} className="col-12 col-md-6 col-lg-4">
-                                <OrderCard order={order} />
-                            </div>
+
+                    {/* Filter Tabs */}
+                    <div className="filter-tabs">
+                        {tabs.map(t => (
+                            <button key={t.key} onClick={() => setFilter(t.key)}
+                                style={{
+                                    padding: '0.45rem 1.1rem', borderRadius: 8, fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s',
+                                    background: filter === t.key ? C.navy : C.white,
+                                    color: filter === t.key ? '#fff' : C.muted,
+                                    border: filter === t.key ? 'none' : `1px solid ${C.border}`,
+                                    boxShadow: filter === t.key ? '0 2px 8px rgba(13,31,79,0.15)' : 'none',
+                                }}>
+                                {t.label}
+                            </button>
                         ))}
                     </div>
-                )}
+
+                    {/* Orders */}
+                    {loading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4rem 0' }}>
+                            <div className="spinner-border" style={{ color: C.navy }} />
+                        </div>
+                    ) : error ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12, padding: '1rem 1.25rem', color: '#991b1b' }}>
+                            <AlertCircle size={18} /> {error}
+                        </div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '4rem 1rem', background: C.white, borderRadius: 16, ...shadow, border: `1px solid ${C.border}` }}>
+                            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#f1f4f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                                <Package size={28} color={C.faint} />
+                            </div>
+                            <h5 style={{ fontWeight: 700, color: C.navy, marginBottom: '0.35rem' }}>No orders here</h5>
+                            <p style={{ color: C.muted, fontSize: '0.88rem', margin: 0 }}>You have no {filter !== 'all' ? filter : ''} deliveries yet.</p>
+                        </div>
+                    ) : (
+                        <div className="orders-grid">
+                            {filtered.map(order => (
+                                <OrderCard key={order._id} order={order} />
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 };
 
