@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../AuthContext';
 import { useState, useEffect } from 'react';
 import { getMyNotifications } from '../services/api';
 import {

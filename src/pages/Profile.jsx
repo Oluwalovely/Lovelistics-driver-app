@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../AuthContext';
 import { getDriverProfile, updateDriverProfile, uploadDriverAvatar, changeDriverPassword } from '../services/api';
 import {
     Car, Bike, Truck, CheckCircle, AlertCircle,
