@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Package, Camera, Radio, Inbox, Truck, CheckCircle, User, Phone, Trash2 } from 'lucide-react';
 import { getOrderById, updateOrderStatus, sendLocation, deleteOrder } from '../services/api';
-import Navbar from '../components/Navbar';
+import SidebarLayout from '../components/SidebarLayout';
 
 const statusColor = {
     'pending': '#f5a623',
