@@ -78,7 +78,7 @@ const Profile = () => {
     const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
     const [showPw, setShowPw] = useState({ current: false, newPass: false, confirm: false });
 
-    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
     const [avatarFile, setAvatarFile] = useState(null);
 
     const [loading, setLoading] = useState(true);
@@ -104,7 +104,7 @@ const Profile = () => {
                         licenseNumber: d.licenseNumber || '',
                     });
                     setIsApproved(d.isApproved || false);
-                    if (d.avatar) setAvatarPreview(d.avatar);
+
                 }
             })
             .catch(() => {})

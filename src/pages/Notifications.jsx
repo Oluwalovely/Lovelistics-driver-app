@@ -68,8 +68,7 @@ const Notifications = () => {
     };
 
     return (
-        <>
-            <SidebarLayout />
+        <SidebarLayout>
             <div className="container py-4">
                 <div className="row justify-content-center">
                     <div className="col-md-7">
@@ -149,7 +148,7 @@ const Notifications = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </SidebarLayout>
     );
 };
 
